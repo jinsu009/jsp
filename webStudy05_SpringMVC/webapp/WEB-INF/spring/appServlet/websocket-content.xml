@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:websocket="http://www.springframework.org/schema/websocket"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/websocket http://www.springframework.org/schema/websocket/spring-websocket-4.3.xsd">
+
+
+<!-- 웹소켓 서버 구축단계 -->
+<!-- 1. spring-websocket 의존성 추가  -->
+<!-- 2. WebSocketHandler 구현체 작성 및 등록 -->
+<!-- 3. webSocket handler 를 매핑 설정 -->
+
+	<bean id="echoWebSocketHandler" class="kr.or.ddit.websocket.EchoWebSocketHandler"/>
+
+	<bean id="pushMessageWebSocketHandler" class="kr.or.ddit.websocket.PushMessageWebSocketHandler"/>
+
+	<websocket:handlers>
+		<websocket:mapping handler="echoWebSocketHandler" path="/echo"/>
+		<websocket:mapping handler="pushMessageWebSocketHandler" path="/pushMessage"/>
+	</websocket:handlers>
+	
+	
+
+</beans>

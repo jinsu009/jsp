@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>gugudan</title>
+		<script type="text/javascript">
+			
+		</script>
+	</head>
+	<body>
+<!-- 		1. 클라이언트로부터 최소단과 최대단2개의 파라미터를 입력받는다. -->
+<!-- 		2. submit이라는 이벤트 발생으로 gugudanservlet에게 파라미터가 전송되야한다. -->
+<!-- 	<form action="gugudan.do"> -->
+	<form action="../gugudan.do">
+		<ul>
+			<li>최소단 : <input type="number" min="2" max="9" name="min"/></li>
+			<li>최대단 : 
+				<select name="max">
+					<option>2</option>
+					<option>3</option>
+					<option>4</option>
+					<option>5</option>
+					<option>6</option>
+					<option>7</option>
+					<option>8</option>
+					<option>9</option>
+				</select>
+				<button type="submit">전송</button>
+			</li>
+		</ul>
+	</form>
+	</body>
+</html>

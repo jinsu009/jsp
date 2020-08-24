@@ -1,0 +1,9 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!-- 06/fragment.jsp/0515 -->
+
+<%
+	String includeeVariable = "include된 변수의 값";
+%>
+<div>인클루드 된 UI</div>
+

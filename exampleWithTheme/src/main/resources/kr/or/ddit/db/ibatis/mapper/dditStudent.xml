@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="Student">
+	<sql id="searchFrag">
+		<dynamic prepend=" WHERE ">
+	    	<isNotEmpty property="searchVO.searchWord">
+	    		<isEqual property="searchVO.searchType" compareValue="name">
+	    			NAME LIKE '%'||#searchVO.searchWord#||'%'
+	    		</isEqual>
+	    		<isEqual property="searchVO.searchType" compareValue="career">
+	    			INSTR(CAREER, #searchVO.searchWord#) > 0
+	    		</isEqual>
+	    		<isEqual property="searchVO.searchType" compareValue="all">
+	    			NAME LIKE '%'||#searchVO.searchWord#||'%'
+	    			OR INSTR(CAREER, #searchVO.searchWord#) > 0
+	    		</isEqual>
+	    	</isNotEmpty>
+	    </dynamic>
+	</sql>
+	<select id="selectStudentCount" resultClass="int" parameterClass="pagingVO">
+		SELECT COUNT(*)
+		FROM DDITSTUDENT
+		<include refid="Student.searchFrag"/>
+	</select>
+	<select id="selectStudentList" resultClass="studentVO" parameterClass="pagingVO">
+		SELECT D.*
+		FROM(
+			SELECT ROWNUM RNUM, C.* 
+			FROM (
+				SELECT   A.CODE,    NAME,    AGE, TEXT GRADE, 	    
+					 DECODE(GEN, 'M', '남', '여') GEN, 	CAREER 
+				FROM    DDITSTUDENT A INNER JOIN GRADE B ON (A.GR_CODE = B.CODE)
+				<include refid="Student.searchFrag"/>
+				ORDER BY CODE DESC
+			) C
+		) D 
+		WHERE RNUM BETWEEN #startRow# AND #endRow#              
+	</select>
+	
+	<resultMap class="string" id="licenseMap">
+		<result property="" column="LICENSE"/>
+	</resultMap>
+	
+	<resultMap class="studentVO" id="studentMap" groupBy="code">
+		<result property="code" column="CODE" />
+		<result property="name" column="NAME" />
+		<result property="birthday" column="BIRTHDAY" />
+		<result property="age" column="AGE" />
+		<result property="grade" column="GRADE" />
+		<result property="gen" column="GEN" />
+		<result property="career" column="CAREER" />
+				
+		<result property="license" javaType="java.util.List" resultMap="Student.licenseMap"/>
+	</resultMap>
+	
+	<select id="selectStudent" parameterClass="string" resultMap="Student.studentMap">
+		SELECT A.CODE, NAME, TO_CHAR(BIRTHDAY, 'YYYY-MM-DD') BIRTHDAY, AGE,
+		        B.TEXT GRADE, GEN,						               
+		        CAREER, D.TEXT LICENSE                                     
+		FROM DDITSTUDENT A INNER JOIN GRADE B ON (A.GR_CODE = B.CODE)        
+		       LEFT OUTER JOIN STD_LICENSE C ON(A.CODE = C.STD_CODE)       
+		       LEFT OUTER JOIN LICENSE D ON (C.LIC_CODE = D.CODE)          
+		WHERE A.CODE = #code#                                              
+	</select>
+	
+	<insert id="insertStudent" parameterClass="studentVO">
+		<selectKey resultClass="string" keyProperty="code">
+			SELECT 'S'|| LPAD(TO_NUMBER(SUBSTR(MAX(CODE), 2))+1, 3, '0')
+			FROM DDITSTUDENT                                            
+		</selectKey>
+		INSERT ALL
+		INTO DDITSTUDENT (                       
+		    CODE,		    NAME,		    BIRTHDAY,   
+		    AGE,		    GR_CODE,		    GEN,    
+		    CAREER                                      
+		) VALUES (                                      
+			#code#,		    #name#,		    TO_DATE(#birthday#, 'YYYY-MM-DD'),   
+		    #age#,		    #grade#,		    #gen#,    
+		    #career#                                    
+		)               
+		<dynamic>
+			<isNotNull property="lic_codes">
+				<iterate property="lic_codes">
+				INTO STD_LICENSE (STD_CODE, LIC_CODE) VALUES (#code#, #lic_codes[]#)
+				</iterate>
+			</isNotNull>
+		</dynamic>  
+		SELECT * FROM DUAL                              
+	</insert>
+	<update id="updateStudent" parameterClass="studentVO">
+		UPDATE DDITSTUDENT 
+	    SET                
+	     NAME		=		#name#,  
+	     BIRTHDAY	= TO_DATE(#birthday#, 'YYYY-MM-DD'),
+	     AGE		=		#age#,   
+	     GR_CODE	=		#grade#,   
+	     GEN		=		#gen#,   
+	     CAREER		=		#career#    
+		WHERE  CODE	=		#code# 
+	</update>
+	
+	<delete id="deleteStudent" parameterClass="string">
+		DELETE FROM DDITSTUDENT
+		WHERE CODE = #code#
+	</delete>
+</sqlMap>
+
+
+
+
+
+
+
+
+
+
+
+
+

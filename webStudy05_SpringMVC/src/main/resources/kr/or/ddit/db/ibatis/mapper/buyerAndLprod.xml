@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL MAP 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="Others">
+	
+	<select id="selectLprodList" resultClass="hashMap">
+		SELECT LPROD_GU "lprod_gu", LPROD_NM "lprod_nm"
+		FROM LPROD	
+	</select>
+	<select id="selectBuyerList" resultClass="buyerVO" parameterClass="string">
+		SELECT BUYER_ID, BUYER_NAME, BUYER_LGU
+		FROM BUYER
+		<dynamic prepend="WHERE">
+			<isParameterPresent>
+				BUYER_LGU=#lprod_gu#
+			</isParameterPresent>
+		</dynamic>
+	</select>
+</sqlMap>

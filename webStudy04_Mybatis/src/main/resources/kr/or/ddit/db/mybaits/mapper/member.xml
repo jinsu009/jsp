@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.member.dao.IMemberDAO">
+
+	<sql id="searchFrag">
+		<where>
+			<if test="searchVO!=null and @org.apache.commons.lang3.StringUtils@isNotBlank(searchVO.searchWord)">
+				<choose>
+					<when test="'name'.equals(searchVO.searchType) ">
+						MEM_NAME LIKE '%'||#{searchVO.searchWord}||'%'
+					</when>
+					<when test="'address'.equals(searchVO.searchType) ">
+						INSTR(MEM_ADD1,#{searchVO.searchWord}) > 0 
+					</when>
+					<otherwise>
+						MEM_NAME LIKE '%'||#{searchVO.searchWord}||'%'
+		    			OR
+		    			INSTR(MEM_ADD1,#{searchVO.searchWord}) > 0  
+					</otherwise>
+				</choose>
+			</if>
+		</where>
+	</sql>
+	
+	<select id="selectMemberCount" resultType="int" parameterType="PagingVO">
+		select count(*) 
+		from member
+		<include refid="searchFrag"/>
+	</select>
+
+	<select id="selectMemberList" resultType="MemberVO" parameterType="PagingVO">
+		select A.*
+		from(
+		    select rownum RNUM, mem_id, mem_name, mem_hp, mem_mail, mem_mileage, mem_add1
+		    from member
+		    <include refid="searchFrag"/>
+		    order by mem_id desc
+		) A
+		<![CDATA[
+			where RNUM >= #{startRow} and RNUM <= #{endRow}
+		]]>
+	</select>
+	
+	<resultMap type="MemberVO" id="memberMap" autoMapping="true">
+		<id property="mem_id" column="MEM_ID" />
+		<collection property="prodList" javaType="java.util.List" ofType="ProdVO" autoMapping="true">
+			<association property="buyer" javaType="BuyerVO" autoMapping="true" />
+		</collection>
+		<collection property="mem_roles" javaType="java.util.Set" ofType="string">
+			<result property="" column="ROLE_NAME"/>
+		</collection>
+	</resultMap>
+	
+	<select id="selectMember" resultMap="memberMap" parameterType="string">
+		select
+		A.mem_id, mem_pass, mem_name, mem_regno1, mem_regno2, to_char(mem_bir, 'yyyy-mm-dd') mem_bir,
+		mem_zip, mem_add1, mem_add2, mem_hometel, mem_comtel,
+		mem_hp, mem_mail, mem_job, mem_like, mem_memorial, 
+		to_char(mem_memorialday, 'yyyy-mm-dd') mem_memorialday , mem_mileage, mem_delete,
+		prod_id, prod_name, prod_cost, prod_price, prod_mileage, prod_buyer, buyer_name,
+		buyer_add1, buyer_charger, B.role_name
+		from member A  inner join USERROLE B on( A.mem_id = B.mem_id)
+                    left outer join cart on(A.mem_id = cart_member)
+					left outer join prod on(cart_prod=prod_id)
+					left outer join buyer on(buyer_id = prod_buyer)                   
+		where A.mem_id =  #{mem_id}
+	</select>
+
+	<update id="updateMember" parameterType="MemberVO">
+		UPDATE member
+		SET
+		 mem_name=#{mem_name, jdbcType=VARCHAR},
+		 mem_add1=#{mem_add1, jdbcType=VARCHAR},
+		 mem_add2=#{mem_add2, jdbcType=VARCHAR},
+		 mem_hp=#{mem_hp, jdbcType=VARCHAR},
+		 mem_mail=#{mem_mail, jdbcType=VARCHAR},
+		 mem_job=#{mem_job, jdbcType=VARCHAR},
+		 mem_like=#{mem_like, jdbcType=VARCHAR},
+		 mem_memorial=#{mem_memorial, jdbcType=VARCHAR},
+		 mem_memorialday=#{mem_memorialday, jdbcType=DATE}
+		WHERE mem_id = #{mem_id}
+	</update>
+	
+	<delete id="deleteMember" parameterType="string">
+		UPDATE MEMBER
+		SET MEM_DELETE = 'Y'
+		WHERE MEM_ID=#{mem_id}	
+	</delete>
+
+	<insert id="insertMember" parameterType="MemberVO">
+	INSERT INTO member 
+	( 	mem_id, mem_pass, mem_name, mem_regno1, mem_regno2, mem_bir, 
+		mem_zip, mem_add1, mem_add2, mem_hometel,
+	    mem_comtel, mem_hp, mem_mail, mem_job, mem_like,
+	    mem_memorialday, mem_memorial,mem_mileage
+	) 
+	VALUES ( 
+		#{mem_id, jdbcType=VARCHAR}, #{mem_pass, jdbcType=VARCHAR}, #{mem_name, jdbcType=VARCHAR},
+		#{mem_regno1, jdbcType=VARCHAR}, #{mem_regno2, jdbcType=VARCHAR},
+		to_date(#{mem_bir, jdbcType=DATE},'yyyy-mm-dd'), 
+		#{mem_zip, jdbcType=VARCHAR}, #{mem_add1}, #{mem_add2, jdbcType=VARCHAR},
+		#{mem_hometel, jdbcType=VARCHAR}, #{mem_comtel, jdbcType=VARCHAR}, #{mem_hp, jdbcType=VARCHAR},
+	    #{mem_mail, jdbcType=VARCHAR}, #{mem_job, jdbcType=VARCHAR}, #{mem_like, jdbcType=VARCHAR},
+	    #{mem_memorial, jdbcType=VARCHAR}, to_date(#{mem_memorialday, jdbcType=DATE}, 'yyyy-mm-dd'),3000
+	 )
+	</insert>
+</mapper>

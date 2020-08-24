@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMapConfig PUBLIC "-//ibatis.apache.org//DTD SQL Map Config 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-config-2.dtd" >
+<sqlMapConfig>
+	<properties resource="kr/or/ddit/db/dbInfo.properties"/>
+	<settings useStatementNamespaces="true"/>
+	
+	<typeAlias alias="buyerVO" type="homework.vo.BuyerVO"/>
+	<typeAlias alias="prodVO" type="homework.vo.ProdVO"/>
+	<typeAlias alias="lprodVO" type="homework.vo.LProdVO"/>
+	<typeAlias alias="pagingVO" type="homework.vo.PagingVO"/>
+	
+	<transactionManager type="JDBC">
+		<dataSource type="DBCP">
+			<property name="driverClassName" value="${driverClassName}"/>
+			<property name="url" value="${url}"/>
+			<property name="username" value="${user}"/>
+			<property name="password" value="${password}"/>
+		</dataSource>
+	</transactionManager>
+	<sqlMap resource="kr/or/ddit/db/ibaits/mapper/buyer.xml"/>
+	<sqlMap resource="kr/or/ddit/db/ibaits/mapper/LprodList.xml"/>
+	
+</sqlMapConfig>

@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="Member">
+	<sql id="searchFrag">
+		<dynamic prepend=" WHERE ">
+	    	<isNotEmpty property="searchVO.searchWord">
+	    		<isEqual property="searchVO.searchType" compareValue="name">
+	    			MEM_NAME LIKE '%'||#searchVO.searchWord#||'%'
+	    		</isEqual>
+	    		<isEqual property="searchVO.searchType" compareValue="address">
+	    			INSTR(MEM_ADD1, #searchVO.searchWord#) > 0
+	    		</isEqual>
+	    		<isEqual property="searchVO.searchType" compareValue="all">
+	    			MEM_NAME LIKE '%'||#searchVO.searchWord#||'%'
+	    			OR INSTR(MEM_ADD1, #searchVO.searchWord#) > 0
+	    		</isEqual>
+	    	</isNotEmpty>
+	    </dynamic>
+	</sql>
+	<select id="selectMemberCount" parameterClass="pagingVO" resultClass="int">
+		SELECT COUNT(*)
+		FROM MEMBER
+	    <include refid="Member.searchFrag"/>
+	</select>
+	<select id="selectMemberList" parameterClass="pagingVO" resultClass="memberVO">
+		SELECT B.*
+		FROM(
+			SELECT A.*, ROWNUM RNUM
+			FROM(
+			    SELECT MEM_ID, MEM_NAME, MEM_HP, MEM_MAIL, MEM_MILEAGE, MEM_ADD1
+			    FROM MEMBER
+			    <include refid="Member.searchFrag"/>
+			    ORDER BY ROWID DESC
+		    ) A
+		) B
+		<![CDATA[
+		WHERE RNUM >= #startRow# AND RNUM <= #endRow#
+		]]>
+	</select>
+	<resultMap class="buyerVO" id="buyerMap">
+		<result property="buyer_name" column="BUYER_NAME"/>
+	</resultMap>
+	<resultMap class="prodVO" id="prodMap">
+		<result property="prod_id" column="PROD_ID"/>
+		<result property="prod_name" column="PROD_NAME"/>
+		<result property="prod_buyer" column="PROD_BUYER"/>
+		<result property="prod_cost" column="PROD_COST"/>
+		<result property="prod_price" column="PROD_PRICE"/>
+		<result property="prod_mileage" column="PROD_MILEAGE"/>
+		<result property="buyer" javaType="buyerVO" resultMap="Member.buyerMap"/>
+		
+	</resultMap>
+	<resultMap class="memberVO" id="memberMap" groupBy="mem_id">
+		<result property="mem_id" column="MEM_ID" />
+		<result property="mem_pass" column="MEM_PASS" />
+		<result property="mem_name" column="MEM_NAME" />
+		<result property="mem_regno1" column="MEM_REGNO1" />
+		<result property="mem_regno2" column="MEM_REGNO2" />
+		<result property="mem_bir" column="MEM_BIR" />
+		<result property="mem_zip" column="MEM_ZIP" />
+		<result property="mem_add1" column="MEM_ADD1" />
+		<result property="mem_add2" column="MEM_ADD2" />
+		<result property="mem_hometel" column="MEM_HOMETEL" />
+		<result property="mem_comtel" column="MEM_COMTEL" />
+		<result property="mem_hp" column="MEM_HP" />
+		<result property="mem_mail" column="MEM_MAIL" />
+		<result property="mem_job" column="MEM_JOB" />
+		<result property="mem_like" column="MEM_LIKE" />
+		<result property="mem_memorial" column="MEM_MEMORIAL" />
+		<result property="mem_memorialday" column="MEM_MEMORIALDAY" />
+		<result property="mem_mileage" column="MEM_MILEAGE" />
+		<result property="mem_delete" column="MEM_DELETE" />
+		
+		<result property="prodList" javaType="java.util.List" resultMap="Member.prodMap"/>
+	</resultMap>
+	<select id="selectMember" resultMap="Member.memberMap" parameterClass="string">
+		SELECT DISTINCT
+		    MEM_ID,    MEM_PASS,    MEM_NAME,    MEM_REGNO1,
+		    MEM_REGNO2,  TO_CHAR(MEM_BIR, 'YYYY-MM-DD') MEM_BIR,    
+		    MEM_ZIP,    MEM_ADD1,
+		    MEM_ADD2,    MEM_HOMETEL,    MEM_COMTEL,    MEM_HP,
+		    MEM_MAIL,    MEM_JOB,    MEM_LIKE,    MEM_MEMORIAL,
+		    TO_CHAR(MEM_MEMORIALDAY, 'YYYY-MM-DD') MEM_MEMORIALDAY,    
+		    MEM_MILEAGE,    MEM_DELETE
+		    , PROD_ID, PROD_NAME, PROD_COST, PROD_PRICE, PROD_MILEAGE
+    		, PROD_BUYER
+    		, BUYER_NAME, BUYER_ADD1, BUYER_CHARGER
+		FROM    MEMBER LEFT OUTER JOIN CART ON(MEM_ID = CART_MEMBER)
+						LEFT OUTER JOIN PROD ON(CART_PROD = PROD_ID)
+						LEFT OUTER JOIN BUYER ON(BUYER_ID = PROD_BUYER)
+		WHERE MEM_ID = #mem_id#
+	</select>
+	<update id="updateMember" parameterClass="memberVO">
+		UPDATE MEMBER
+	    SET
+		    MEM_ZIP				=	#mem_zip#,
+		    MEM_ADD1			=	#mem_add1#,
+		    MEM_ADD2			=	#mem_add2#,
+		    MEM_HOMETEL			=	#mem_hometel#,
+		    MEM_COMTEL			=	#mem_comtel#,
+		    MEM_HP				=	#mem_hp#,
+		    MEM_MAIL			=	#mem_mail#,
+		    MEM_JOB				=	#mem_job#,
+		    MEM_LIKE			=	#mem_like#,
+		    MEM_MEMORIAL		=	#mem_memorial#,
+		    MEM_MEMORIALDAY		=	TO_DATE(#mem_memorialday#, 'YYYY-MM-DD')
+		WHERE   MEM_ID = #mem_id# 	AND   MEM_PASS = #mem_pass#
+	</update>
+	
+	<delete id="deleteMember" parameterClass="string">
+		UPDATE MEMBER
+		SET MEM_DELETE = 'Y'
+		WHERE MEM_ID = #mem_id#
+	</delete>
+	
+	<insert id="insertMember" parameterClass="memberVO">
+		INSERT INTO member (
+		    mem_id,    mem_pass,    mem_name,    mem_regno1,
+		    mem_regno2,    mem_bir,    mem_zip,    mem_add1,
+		    mem_add2,    mem_hometel,    mem_comtel,    mem_hp,
+		    mem_mail,    mem_job,    mem_like,    mem_memorial,
+		    mem_memorialday, mem_mileage
+		) VALUES (
+		    #mem_id#,    #mem_pass#,    #mem_name#,    #mem_regno1#,
+		    #mem_regno2#,   TO_DATE(#mem_bir#, 'YYYY-MM-DD'),    #mem_zip#,    #mem_add1#,
+		    #mem_add2#,    #mem_hometel#,    #mem_comtel#,    #mem_hp#,
+		    #mem_mail#,    #mem_job#,    #mem_like#,    #mem_memorial#,
+		    TO_DATE(#mem_memorialday#, 'YYYY-MM-DD'), 3000
+		)
+	</insert>
+</sqlMap>
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMapConfig PUBLIC "-//ibatis.apache.org//DTD SQL Map Config 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-config-2.dtd" >
+<sqlMapConfig>
+	<properties resource="kr/or/ddit/db/dbInfo.properties"/>
+	<settings useStatementNamespaces="true"/>
+	
+	<typeAlias alias="studentVO" type="kr.or.ddit.vo.DDITStudentVO"/>
+	<typeAlias alias="memberVO" type="kr.or.ddit.vo.MemberVO"/>
+	<typeAlias alias="pagingVO" type="kr.or.ddit.vo.PagingVO"/>
+	<typeAlias alias="prodVO" type="kr.or.ddit.vo.ProdVO"/>
+	<typeAlias alias="buyerVO" type="kr.or.ddit.vo.BuyerVO"/>
+	
+	<transactionManager type="JDBC">
+		<dataSource type="DBCP">
+			<property name="driverClassName" value="${driverClassName}"/>
+			<property name="url" value="${url}"/>
+			<property name="username" value="${user}"/>
+			<property name="password" value="${password}"/>
+		</dataSource>
+	</transactionManager>
+	<sqlMap resource="kr/or/ddit/db/ibatis/mapper/dditStudent.xml"/>
+	<sqlMap resource="kr/or/ddit/db/ibatis/mapper/gradeAndLicense.xml"/>
+	<sqlMap resource="kr/or/ddit/db/ibatis/mapper/stdLicense.xml"/>
+	<sqlMap resource="kr/or/ddit/db/ibatis/mapper/member.xml" />
+	<sqlMap resource="kr/or/ddit/db/ibatis/mapper/prod.xml" />
+	<sqlMap resource="kr/or/ddit/db/ibatis/mapper/buyerAndLprod.xml" />
+	<sqlMap resource="kr/or/ddit/db/ibatis/mapper/buyer.xml" />
+</sqlMapConfig>
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" version="3.0">
+  <display-name>webStudy02_iBatis</display-name>
+  <welcome-file-list>
+    <welcome-file>index.do</welcome-file>
+  </welcome-file-list>
+  <context-param>
+    <param-name>contentPath</param-name>
+    <param-value>d:/contents</param-value>
+  </context-param>
+  <servlet>
+    <servlet-name>MimeDescriptionServlet</servlet-name>
+    <servlet-class>kr.or.ddit.servlet01.MimeDescriptionServlet</servlet-class>
+    <init-param>
+      <param-name>contentPath</param-name>
+      <param-value>d:/contents</param-value>
+    </init-param>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>MimeDescriptionServlet</servlet-name>
+    <url-pattern>/prod.jpg</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <servlet-name>DescriptionServlet</servlet-name>
+    <servlet-class>kr.or.ddit.servlet01.DescriptionServlet</servlet-class>
+    <init-param>
+      <param-name>test</param-name>
+      <param-value>paramValue</param-value>
+    </init-param>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>DescriptionServlet</servlet-name>
+    <url-pattern>/desc</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <servlet-name>ContentsUIGenerateServlet</servlet-name>
+    <servlet-class>kr.or.ddit.servlet02.ContentsUIGenerateServlet</servlet-class>
+    <load-on-startup>2</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ContentsUIGenerateServlet</servlet-name>
+    <url-pattern>/contents.do</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <servlet-name>SelectedFileStreamingServlet</servlet-name>
+    <servlet-class>kr.or.ddit.servlet02.SelectedFileStreamingServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>SelectedFileStreamingServlet</servlet-name>
+    <url-pattern>/fileStream.do</url-pattern>
+  </servlet-mapping>
+ 
+</web-app>

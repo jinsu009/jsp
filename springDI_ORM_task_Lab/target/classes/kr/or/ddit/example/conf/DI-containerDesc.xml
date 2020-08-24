@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:c="http://www.springframework.org/schema/c"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd"
+	default-lazy-init="true"
+	
+	>
+
+<!-- 스키마 종류 : beans, c, p -->
+
+<!-- 	Spring Container(Bean Container, DI Container, IoC Container) 사용단계 -->
+<!-- 	* bean : java object  -->
+<!-- 	1. spring-context 모듈 의존성 추가 (pom.xml) -->
+<!-- 	2. DI 컨테이너 내에 관리 대상이 되는 bean 등록  -->
+<!-- 	3. 등록된 bean들간의 의존관계 형성 (의존성 주입) -->
+<!-- 	 1) constructor injector -->
+<!-- 	 	constructor-arg name="" ref="" -->
+<!-- 			c namespace -->
+<!-- 	 2) setter injector  -->
+<!-- 	 	property name="" ref="" -->
+<!-- 			p namespace -->
+<!--	4. 어플리케이션에 엔트리 포인트 (시작지점) 에서 컨테이너 객체 생성 ( 최상위 : ApplicationContext - interface ) -->
+<!--		* web 환경이 아니니까 classpath / filesystem resource 방법 두가지만 있다. -->
+<!--	5. container.getBean(type) , getBean(name) , getBean(name, type) -->
+	
+<!-- 	스프링 컨테이너의 빈 관리 특성  -->
+<!-- 	1. 빈, 객체 생성 시점 -->
+<!-- 		: 컨테이너가 초기화 될 때 등록된 모든 빈의 객체를 생성함   -->
+<!-- 	lazy-init 설정으로 생성시점 지연가능 - 주입시에 생성됨 (객체 생성 순서 제어가능.: 완전한제어는 불가능 ) -->
+<!-- 	2.  빈, 객체의 생성 갯수 
+			: 기본적으로 싱글턴의 형태로 빈을 관리함 ( 주의 : 싱글턴의 대상이 클래스가 아님 )  -->
+<!-- 			scope : singlton(one instance), propertype(multi instance, lazy-init 포함),
+			    request(web), sessin(web) -->
+			    
+<!-- 		3. 빈 객체의 생성순서는 기본적으로 등록된 빈의 순서를 따른다.  -->
+<!-- 			depends-on -->
+
+<!-- 	4. 컨테이너가 빈을 초기화 할 때 그 생명주기에 맞춰 호출하는 콜백 메소드가 있다.  -->
+
+
+<!-- 	CoC 패러다임 : convention over configuration -->
+	<!-- defalut : 상위 beans의 설정값을 따라감 -->
+	<bean id="sampleDAO" class="kr.or.ddit.example.dao.SampleDAOImpl"
+	lazy-init="false"  scope="singleton"
+	init-method="init" destroy-method="destory"
+	/>
+	
+	<bean id="sampleService" class="kr.or.ddit.example.service.SampleServiceImpl"
+		p:dao-ref="sampleDAO"
+	/>
+	
+	<bean id="sampleController1" class="kr.or.ddit.example.controller.SampleController"
+		c:service-ref="sampleService"
+		depends-on="sampleController2"
+		lazy-init="false"
+	/>
+	<bean id="sampleController2" class="kr.or.ddit.example.controller.SampleController"
+		c:service-ref="sampleService"
+		
+	/>
+
+</beans>

@@ -1,0 +1,23 @@
+<html>
+<head>
+<script type='text/javascript'>
+	function changeHandler(){
+		document.forms[0].submit();		
+	}
+</script>
+<style type='text/css'>
+	h4{
+		border : 1px solid red;
+	}
+</style>
+</head>
+	<body>
+	<h4> current Time (on Server) : @now </h4>
+		<form action='fileStream.do'>
+				<select name='filename' onchange='changeHandler()'>
+					@data			
+				</select>
+		
+		</form>
+	</body>
+</html>

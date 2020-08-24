@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL MAP 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="Student">
+
+	<sql id="searchFrag">
+		<dynamic prepend=" WHERE ">
+		    	<isNotEmpty property="searchVO.searchWord">
+		    		<isEqual property="searchVO.searchType" compareValue="name">
+		    			name LIKE '%'||#searchVO.searchWord#||'%'
+		    		</isEqual>
+		    		<isEqual property="searchVO.searchType" compareValue="career">
+		    			INSTR(career,#searchVO.searchWord#) > 0 
+		    		</isEqual>
+		    		<isEqual property="searchVO.searchType" compareValue="all">
+		    			name LIKE '%'||#searchVO.searchWord#||'%'
+		    			OR
+		    			INSTR(career,#searchVO.searchWord#) > 0 
+		    		</isEqual>
+		    	</isNotEmpty>
+		  </dynamic>
+	</sql>
+
+	<select id="selectStudentCount" parameterClass="pagingVO" resultClass="int">
+		select count(*)
+		from dditstudent	
+		<include refid="Student.searchFrag"/>
+	</select>
+
+	<select id="selectAllStudent" resultClass="DDITStudentVO" parameterClass="pagingVO">
+		select A.*
+		from (
+			SELECT rownum RNUM ,code, name, to_char(birthday,'YYYY-MM-DD') birthday,
+			 age, gr_code grade, DECODE(gen, 'M', '남', '여') gender, career
+			FROM dditstudent
+			<include refid="Student.searchFrag"/>
+			order by name desc
+		) A
+		<![CDATA[
+			where RNUM >= #startRow# and RNUM <= #endRow#
+		]]>
+	</select>
+	
+	<resultMap class="string" id="licenseMap">
+		<result property="" column="LICENSE"/>
+	</resultMap>
+	
+	<resultMap class="DDITStudentVO" id="studentMap" groupBy="code">
+		<result property="code" column="CODE"/>
+		<result property="name" column="NAME"/>
+		<result property="birthday" column="BIRTHDAY"/>
+		<result property="age" column="AGE"/>
+		<result property="grade" column="GRADE"/>
+		<result property="gender" column="GENDER"/>
+		<result property="career" column="CAREER"/>
+		<result property="license" javaType="java.util.List" resultMap="Student.licenseMap"/>
+	</resultMap>
+	
+	<select id="selectStudent" resultMap="Student.studentMap" parameterClass="String">
+		select a.code, name, to_char(birthday, 'yyyy-mm-dd') birthday
+		,age, b.text grade, decode(gen, 'M', '남','여') gender, career, d.text license
+		from dditstudent a inner join grade b on (gr_code = b.code)
+		left outer join std_license c on (a.code = c.std_code)
+		left outer join license d on (c.lic_code = d.code)
+		 where a.code= #code#
+	</select>
+	
+	<insert id="insertStudent" parameterClass="DDITStudentVO">
+	<selectKey resultClass="string" keyProperty="code">
+		select 'S' || lpad(to_number(substr(MAX(CODE),2))+1,3,'0')
+		from dditstudent
+	</selectKey>
+		insert all into dditstudent ( code, name, birthday, age, gr_code, gen, career)
+		values ( #code#, #name#, to_date(#birthday#,'YYYY-MM-DD'), #age#, #grade#, #gender#, #career#)
+		<dynamic>
+			<isNotNull property="lic_codes">
+				<iterate property="lic_codes">
+					INTO STD_LICENSE(STD_CODE,LIC_CODE) VALUES(#code# , #lic_codes[]#)
+				</iterate>
+			</isNotNull>		
+		</dynamic>
+		select * from dual
+	</insert>
+	
+	<update id="updateStudent" parameterClass="DDITStudentVO">
+		UPDATE dditstudent 
+		SET NAME = #name# , birthday = to_date(#birthday#,'YYYY-MM-DD'), age = #age#, gr_code = #grade# ,  gen = #gender# , career =#career#
+		WHERE CODE = #code#
+	</update>
+	
+	<delete id="deleteStudent" parameterClass="String">
+		delete from dditstudent where code = #code#
+	</delete>
+	
+</sqlMap>

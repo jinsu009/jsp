@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL MAP 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="StdLicense">
+	<insert id="insertLicenses" parameterClass="DDITStudentVO">
+		insert all 
+		<iterate property="lic_codes">
+		into std_license (std_code, lic_code) values(#code#,#lic_codes[]#)
+		</iterate>
+		select * from dual 
+	</insert>
+	
+	<delete id="deleteLicenses" parameterClass="string">
+		DELETE FROM STD_LICENSE WHERE STD_CODE = #code#
+	</delete>
+</sqlMap>

@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL MAP 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="Prod">
+
+	<resultMap class="prodVO" id="prodMap" groupBy="prod_id">
+		<result property="prod_id" column="PROD_ID"/>
+		<result property="prod_name" column="PROD_NAME"/>
+		<result property="prod_lgu" column="PROD_LGU"/>
+		<result property="prod_buyer" column="PROD_BUYER"/>
+		<result property="prod_cost" column="PROD_COST"/>
+		<result property="prod_price" column="PROD_PRICE"/>
+		<result property="prod_sale" column="PROD_SALE"/>
+		<result property="prod_outline" column="PROD_OUTLINE"/>
+		<result property="prod_detail" column="PROD_DETAIL"/>
+		<result property="prod_img" column="PROD_IMG"/>
+		<result property="prod_totalstock" column="PROD_TOTALSTOCK"/>
+		<result property="prod_insdate" column="PROD_INSDATE"/>
+		<result property="prod_properstock" column="PROD_PROPERSTOCK"/>
+		<result property="prod_size" column="PROD_SIZE"/>
+		<result property="prod_color" column="PROD_COLOR"/>
+		<result property="prod_delivery" column="PROD_DELIVERY"/>
+		<result property="prod_unit" column="PROD_UNIT"/>
+		<result property="prod_qtyin" column="PROD_QTYIN"/>
+		<result property="prod_qtysale" column="PROD_QTYSALE"/>
+		<result property="prod_mileage" column="PROD_MILEAGE"/>
+		<result property="buyer.buyer_name" column="BUYER_NAME"/>
+		
+		<result property="memberList" javaType="java.util.List" resultMap="Prod.memberMap"/>
+	</resultMap>
+	
+	<resultMap class="lprodVO" id="lprodMap">
+		<result property="lprod_nm" column="LPROD_NM"/>
+		<result property="lprod_gu" column="LPROD_GU"/>
+	</resultMap>
+	
+	<resultMap class="memberVO" id="memberMap" >
+		<result property="mem_id" column="MEM_ID"/>
+		<result property="mem_name" column="MEM_NAME"/>
+		<result property="mem_hp" column="MEM_HP"/>
+		<result property="mem_mail" column="MEM_MAIL"/>
+		<result property="mem_mileage" column="MEM_MILEAGE"/>
+
+	</resultMap>
+
+	<sql id="searchFrag">
+	FROM prod left outer join buyer on(buyer_id=prod_buyer)
+				 left outer join lprod on (prod_lgu = lprod_gu)
+		<dynamic prepend="WHERE">
+			<isNotNull property="detailSearch">
+				<isNotEmpty property="detailSearch.prod_buyer" prepend="AND">
+					prod_buyer = #detailSearch.prod_buyer#
+				</isNotEmpty>
+				<isNotEmpty property="detailSearch.prod_lgu"  prepend="AND">
+					prod_lgu = #detailSearch.prod_lgu#
+				</isNotEmpty>
+			</isNotNull>
+		</dynamic>
+	</sql>
+	
+	<select id="selectProdCount" parameterClass="pagingVO" resultClass="int">
+		SELECT count(*) 
+		<include refid="Prod.searchFrag"/>
+	</select>
+
+	<select id="selectProdList" parameterClass="pagingVO" resultClass="prodVO">
+	SELECT A.* 
+	FROM (
+			SELECT rownum RNUM, 
+			    prod_id, prod_name, prod_lgu, prod_buyer,
+			    prod_cost, prod_price, prod_sale, prod_outline,
+			    prod_detail, prod_img, prod_totalstock,
+			    prod_insdate, prod_properstock, nvl(prod_size,'정보없음') prod_size,
+			    nvl(prod_color,'정보없음') prod_color, prod_delivery, prod_unit,
+			    prod_qtyin, prod_qtysale, nvl(prod_mileage,0) prod_mileage,
+			    buyer_name "buyer.buyer_name",buyer_charger "buyer.buyer_charger", lprod_nm
+		 <include refid="Prod.searchFrag"/>
+		 ) A
+	<![CDATA[
+		where RNUM >= #startRow# and RNUM <= #endRow#
+	]]>
+	</select>
+	
+	<select id="selectProd" parameterClass="string" resultMap="Prod.prodMap">
+	select prod.*, B.*, buyer_name, lprod_nm
+	from prod inner join lprod on (prod_lgu = lprod_gu)
+          inner join buyer on (prod_buyer = buyer_id)
+          left outer join(
+            select distinct mem_id,mem_name, mem_hp, mem_mail, mem_mileage, cart_prod
+            from cart inner join member on(cart_member = mem_id)
+          ) B on (prod_id = cart_prod)
+		where prod_id = #prod_id#
+	</select>
+
+	<update id="updateProd" parameterClass="prodVO">
+	UPDATE prod
+	SET 
+	    prod_name = #prod_name#, 
+	    prod_lgu =#prod_lgu#,
+	    prod_buyer =#prod_buyer#,
+	    prod_cost =#prod_cost#, 
+	    prod_price =#prod_price#,
+	    prod_sale =#prod_sale#, 
+	    prod_outline =#prod_outline#,
+	    prod_detail =#prod_detail#,
+	    prod_totalstock =#prod_totalstock#, 
+	    prod_insdate =#prod_insdate#,
+	    prod_properstock =#prod_properstock#, 
+	    prod_size =#prod_size#,
+	    prod_color =#prod_color#, 
+	    prod_delivery =#prod_delivery#,
+	    prod_unit ='EA', 
+	    prod_qtyin =0 ,
+	    prod_qtysale = 0
+	    <dynamic>
+	    	<isNotEmpty property="prod_img">
+		    	, prod_img = #prod_img#
+	    	</isNotEmpty>
+	    </dynamic>
+	WHERE prod_id =#prod_id#
+	</update>
+	
+	<insert id="insertProd" parameterClass="prodVO">
+	<selectKey resultClass="string" keyProperty="prod_id">
+		select #prod_lgu# || lpad(nvl(to_number(substr(max(prod_id),length(#prod_lgu#)+1)),0)+1,6,'0')
+		from prod
+		where prod_lgu = #prod_lgu#
+	</selectKey>
+	INSERT INTO prod ( prod_id, prod_name,  prod_lgu,
+	    prod_buyer, prod_cost, prod_price, prod_sale, prod_outline, prod_detail,
+	    prod_img, prod_totalstock, prod_insdate, prod_properstock, prod_size,
+	    prod_color, prod_delivery, prod_unit, prod_qtyin, prod_qtysale, prod_mileage
+	) VALUES ( #prod_id#, #prod_name#,  #prod_lgu#,
+	    #prod_buyer#, #prod_cost#, #prod_price#, #prod_sale#, #prod_outline#, #prod_detail#,
+	    #prod_img#, #prod_totalstock#, sysdate, #prod_properstock#, #prod_size#,
+	    #prod_color#, #prod_delivery#, #prod_unit#, #prod_qtyin#, #prod_qtysale#, #prod_mileage#)
+	</insert>
+
+</sqlMap>

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:c="http://www.springframework.org/schema/c"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd">
+
+	<context:component-scan base-package="kr.or.ddit" use-default-filters="false">
+		<context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+		<context:include-filter type="annotation" expression="org.springframework.web.bind.annotation.ControllerAdvice"/>
+	</context:component-scan>
+
+<!-- RequestMappingHandlerMapping -->
+<!-- RequestMappingHandlerAdapter -->
+<!-- InternalResourceViewResolver 등 MVC 모듈에서 필요한 기본 전략들이 등록된다. -->
+	<mvc:annotation-driven validator="validator"/>
+	
+	<!-- properties 경고 메세지 출력 하기  -->
+	<bean id="resourceBundleMessageSource" class="org.springframework.context.support.ResourceBundleMessageSource"
+		p:basename="kr.or.ddit.validate.ValidationMessage"
+	/>
+	<bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean"
+		p:validationMessageSource-ref="resourceBundleMessageSource"
+	/>
+	
+	<!-- type injection  -->
+	<bean id="IRVR" class="org.springframework.web.servlet.view.InternalResourceViewResolver"
+		p:prefix="/WEB-INF/views/"
+		p:suffix=".jsp"
+	/>
+	
+	<!-- preparer -->
+	<bean id="prodViewPreparer" class="kr.or.ddit.preparer.ProdViewPreparer"/>
+	
+	<!-- tiles -->
+	<bean id="tilesConfigurer" class="org.springframework.web.servlet.view.tiles3.TilesConfigurer"
+			p:definitions="classpath:kr/or/ddit/tiles/*-definition.xml"
+			p:preparerFactoryClass="org.springframework.web.servlet.view.tiles3.SpringBeanPreparerFactory"/>
+	<bean id="TVR" class="org.springframework.web.servlet.view.tiles3.TilesViewResolver"
+		p:order="1"
+	/>
+	
+	<mvc:default-servlet-handler/>
+	
+	<!-- 국가별 언어 변환 -->
+	<!-- 변경한 언어 정보를 cookie에 담아뒀다가 다음에 다시 사이트에 접속해도 마지막에 선택한 언어정보를 보여줌  -->
+	<bean id="localeResolver" class="org.springframework.web.servlet.i18n.CookieLocaleResolver"
+		p:cookiePath="/"
+		p:cookieMaxAge="#{60*60*24*7}"
+	/>
+	<mvc:interceptors>
+		<bean  class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor"
+			p:paramName="lang"
+		></bean>
+	</mvc:interceptors>
+	
+	<!-- 06.12 -->
+<!-- 	아이디는 반드시 첫문자가 소문자 m으로 잡아줘야 한다.  -->
+	<bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource"
+		p:basename="kr.or.ddit.msg.message"
+	/>
+	<!--파일 처리-->
+<!-- 	1. FileUploadCheckFilter : MultipartResolver : container 내부에 bean형태로 등록-->
+<!-- 	2. dispatcher servlet -> multipart-config설정 -->
+<!-- 	FileUploadRequestWrapper : MultipartHttpServletRequest -->
+<!-- 	PartWrapper : MultipartFile -->
+	
+	<bean id="multipartResolver" class="org.springframework.web.multipart.support.StandardServletMultipartResolver"></bean>
+	
+</beans>

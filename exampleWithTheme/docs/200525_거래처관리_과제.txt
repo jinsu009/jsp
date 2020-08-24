@@ -1,0 +1,13 @@
+** "homework" 컨텍스트로 거래처 관리 프로그램 구현. //프로젝트를 새로 만들것
+1. Maven 프로젝트로 구현할 것.
+2. Model2 + MVC + Layered Architecture 구조 적용. //매일 우리가 그리는 그림대로, 패키징분리
+3. Persistence Layer 에 iBatis 이용.
+4. 목록조회에는 페이징 처리 + 검색 기능 적용.
+(검색 조건 : 거래처명, 거래처 지역, 전체)
+5. 다음과 같은 커맨드 URI를 사용함.
+/buyer/buyerList.do
+/buyer/buyerView.do
+/buyer/insertBuyer.do
+/buyer/updateBuyer.do
+6. 각 레이어 구현후, 해당 레이어에 대한 단위테스트를 진행할 것.
+(test classpath에 각 레이어에 대한 test case 구현)

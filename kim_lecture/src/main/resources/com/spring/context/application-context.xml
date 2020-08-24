@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:c="http://www.springframework.org/schema/c"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+
+	<bean id="sumation" class="com.spring.calc.SumationImpl"></bean>
+	<bean id="sumation2" class="com.spring.calc.SumationImpl2"></bean>
+	<bean id="sumation3" class="com.spring.calc.SumationImpl3"></bean>
+
+
+	<bean id="calc" class="com.spring.calc.Calculator" p:sum-ref="sumation3"></bean>
+
+</beans>

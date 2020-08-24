@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:c="http://www.springframework.org/schema/c"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+
+	<bean id="sampleDAO" class="kr.or.ddit.example.dao.SampleDAOImpl" ></bean>
+
+	<bean id="sampleServiceImpl" class="kr.or.ddit.example.service.SampleServiceImpl">
+<!-- 	1. 생성자 주입 방식  -->
+<!-- 		<constructor-arg name="dao" ref="sampleDAO" /> -->
+
+<!-- 	2. 세터주입방식  -->
+	 <property name="dao" ref="sampleDAO"></property>
+	</bean>
+	
+	<bean class="kr.or.ddit.example.controller.SampleController">
+		<constructor-arg name="service" ref="sampleServiceImpl" />
+	</bean>
+
+</beans>

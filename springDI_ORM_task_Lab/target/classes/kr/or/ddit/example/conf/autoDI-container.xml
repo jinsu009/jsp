@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd">
+
+<!-- 1. 특정 영역에 있는 클래스를 대상으로 bean을 자동 등록  -->
+<!-- 2. 자동주입을 통해 의존 관계형성  -->
+	<context:annotation-config  />
+	<context:component-scan base-package="kr.or.ddit.example.auto"></context:component-scan>
+
+<!--스프링 컨테이너를 토한 자도 등록 및 주입 단계
+	1. annotation을 사용 가능한 환경을 만들어준다.
+		context : annotation-config
+	2. 특정 역역의 일정 조건에 맞는 클래스를 빈으로 등록하기 위한 설정 
+		context : component-scan base-package=""
+		1) @Component : 특정레이어에 소속되지 않는다.
+		2) @Repository : persistence layer 빈 등록 
+		3) @Service : Business Logic layer 빈 등록
+		4) @Controller : Controller layer (Backend Controller, Command Handler) 빈등록 (*****)
+			handler mapper에서 수집될 수 있는 annotation 그러니까 주의 요주의  
+		5) @Configuration : java - config 방식의 빈관리에 사용
+		6) @ControllerAdvice : AOP 방법론에 따라서 advice를 등록할 때 사용
+		7) @RestController : Spring 마샬링  , 복합 annotation @Controller + @ResponseBody
+		
+	3. 등록된 bean들간의 자동 의존관계 형성 
+		1) @AutoWired : 타입을 기준으로 bean을 선별하고, 주입 한다. (NoUniqueBeanDefinitionException 중복되는 bean이 있으면 문제가 발생한다. )
+		2) @Resource : name, type 등의 속성으로 bean을 선별할 조건을 명시적으로 설정
+		3) @Required : 반드시 주입이 필요한 필수 전략임을 표현하기 위한 용도 
+		4) @Inject : @AutiWired와 비슷한 구조로 주입을 하지만, 컨테이너에 대한 종속성이 없어서 다양하게 활용된다. -->
+
+</beans>

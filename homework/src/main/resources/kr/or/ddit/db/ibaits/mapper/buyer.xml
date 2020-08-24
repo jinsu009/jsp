@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL MAP 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="buyer">
+	
+	<sql id="searchFrag">
+		<dynamic prepend=" WHERE ">
+		    	<isNotEmpty property="searchVO.searchWord">
+		    		<isEqual property="searchVO.searchType" compareValue="name">
+		    			BUYER_NAME LIKE '%'||#searchVO.searchWord#||'%'
+		    		</isEqual>
+		    		<isEqual property="searchVO.searchType" compareValue="address">
+		    			INSTR(BUYER_ADD1,#searchVO.searchWord#) > 0 
+		    		</isEqual>
+		    		<isEqual property="searchVO.searchType" compareValue="all">
+		    			BUYER_NAME LIKE '%'||#searchVO.searchWord#||'%'
+		    			OR
+		    			INSTR(BUYER_ADD1,#searchVO.searchWord#) > 0 
+		    		</isEqual>
+		    	</isNotEmpty>
+		  </dynamic>
+	</sql>
+
+	<select id="readBuyerCount" parameterClass="pagingVO" resultClass="int">
+		select count(*) 
+		from BUYER
+		<include refid="buyer.searchFrag"/>
+	</select>
+	
+	<select id="readBuyerList" parameterClass="pagingVO" resultClass="buyerVO">
+		select A.*
+		from(
+		    select rownum RNUM, buyer_id, buyer_name, buyer_bank,
+		     buyer_lgu, buyer_mail, buyer_comtel, buyer_add1
+		    from buyer
+		    <include refid="buyer.searchFrag"/>
+		    order by buyer_id desc
+		) A
+		<![CDATA[
+			where RNUM >= #startRow# and RNUM <= #endRow#
+		]]>
+	</select> 
+	
+	<resultMap class="prodVO" id="prodMap">
+		<result property="prod_name" column="PROD_NAME"/>
+		<result property="prod_cost" column="PROD_COST"/>
+		<result property="prod_price" column="PROD_PRICE"/>
+		<result property="prod_sale" column="PROD_SALE"/>
+		<result property="prod_outline" column="PROD_OUTLINE"/>
+		<result property="prod_detail" column="PROD_DETAIL"/>
+		<result property="prod_insdate" column="PROD_INSDATE"/>
+		<result property="prod_properstock" column="PROD_PROPERSTOCK"/>
+		<result property="prod_size" column="PROD_SIZE"/>
+		<result property="prod_color" column="PROD_COLOR"/>
+		<result property="prod_delivery" column="PROD_DELIVERY"/>
+	</resultMap>
+	
+	<resultMap class="buyerVO" id="buyerMap" groupBy="buyer_id">
+		<result property="buyer_id" column="BUYER_ID"/>
+		<result property="buyer_name" column="BUYER_NAME"/>
+		<result property="buyer_bank" column="BUYER_BANK"/>
+		<result property="buyer_add1" column="BUYER_ADD1"/>
+		<result property="buyer_add2" column="BUYER_ADD2"/>
+		<result property="buyer_comtel" column="BUYER_COMTEL"/>
+		<result property="buyer_fax" column="BUYER_FAX"/>
+		<result property="buyer_mail" column="BUYER_MAIL"/>
+		<result property="buyer_charger" column="BUYER_CHARGER"/>
+		<result property="buyer_telext" column="BUYER_TELEXT"/>
+		
+		<result property="prodList" javaType="java.util.List" resultMap="buyer.prodMap"/>
+	</resultMap>
+	
+	<select id="readBuyer" parameterClass="string" resultMap="buyer.buyerMap">
+		select 
+		prod_name, prod_cost, prod_price, prod_sale, prod_outline, prod_detail,
+		prod_insdate, prod_properstock, nvl(prod_size,0) prod_size, nvl(prod_color,'알수없음') prod_color, prod_delivery,
+		buyer_id, buyer_name, buyer_lgu, buyer_bank, buyer_bankno, buyer_bankname,
+		buyer_zip, buyer_add1, buyer_add2, buyer_comtel, buyer_fax, buyer_mail, buyer_charger,
+ 		nvl(buyer_telext,0) buyer_telext
+		from buyer left outer join prod on(buyer_id = prod_buyer)
+		where buyer_id = #buyer_id#
+	</select>
+	
+	<insert id="createBuyer" parameterClass="buyerVO">
+		<selectKey resultClass="string" keyProperty="buyer_id">
+			select buyer_lgu || lpad(to_number(MAX(substr(buyer_id,5)))+1,2,'0')
+			from buyer
+			where buyer_lgu = #buyer_lgu#
+			group by buyer_lgu
+		</selectKey>
+			INSERT INTO buyer ( 
+				buyer_id,  buyer_name,  buyer_lgu,
+			    buyer_bank,  buyer_bankno,  buyer_bankname,
+			    buyer_zip,  buyer_add1,  buyer_add2,  buyer_comtel,
+			    buyer_fax,  buyer_mail,  buyer_charger
+			)
+			VALUES (	
+				#buyer_id#,  #buyer_name#,  #buyer_lgu#,
+			    #buyer_bank#,  #buyer_bankno#,  #buyer_bankname#,
+			    #buyer_zip#,  #buyer_add1#,  #buyer_add2#,  #buyer_comtel#,
+			    #buyer_fax#,  #buyer_mail#,  #buyer_charger#
+			)
+	</insert>
+
+	<update id="modifyBuyer" parameterClass="buyerVO">
+		UPDATE buyer 
+    	SET  
+	       buyer_name =#buyer_name#,       buyer_lgu =#buyer_lgu#,
+	       buyer_bank =#buyer_bank#,       buyer_bankno =#buyer_bankno#,
+	       buyer_bankname =#buyer_bankname#,       buyer_zip =#buyer_zip#,
+	       buyer_add1 =#buyer_add1#,       buyer_add2 =#buyer_add2#,
+	       buyer_comtel =#buyer_comtel#,       buyer_fax =#buyer_fax#,
+	       buyer_mail =#buyer_mail#,       buyer_charger =#buyer_charger#,
+	       buyer_telext =#buyer_telext#
+		WHERE  
+          buyer_id =#buyer_id#
+	</update>
+</sqlMap>

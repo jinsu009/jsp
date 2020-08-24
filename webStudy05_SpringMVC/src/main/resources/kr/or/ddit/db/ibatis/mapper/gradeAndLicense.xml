@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL MAP 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="GradeLicense">
+	<select id="selectgrade" resultClass="hashMap">
+		select CODE, TEXT from grade
+	</select>
+
+	<select id="selectlicense" resultClass="hashMap">
+		select CODE, TEXT from license
+	</select>
+</sqlMap>

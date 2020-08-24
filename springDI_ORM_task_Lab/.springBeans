@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beansProjectDescription>
+	<version>1</version>
+	<pluginVersion><![CDATA[3.9.12.202003180620-RELEASE]]></pluginVersion>
+	<configSuffixes>
+		<configSuffix><![CDATA[xml]]></configSuffix>
+	</configSuffixes>
+	<enableImports><![CDATA[false]]></enableImports>
+	<configs>
+		<config>src/main/resources/kr/or/ddit/simple/conf/simple-di.xml</config>
+		<config>src/main/resources/kr/or/ddit/example/conf/Sample-DI.xml</config>
+		<config>src/main/resources/kr/or/ddit/example/conf/DI-containerDesc.xml</config>
+		<config>src/main/resources/kr/or/ddit/example/conf/VariousDI-container.xml</config>
+		<config>src/main/resources/kr/or/ddit/example/conf/CollectionDI-container.xml</config>
+		<config>src/main/resources/kr/or/ddit/example/conf/Properties-injection.xml</config>
+		<config>src/main/resources/kr/or/ddit/example/conf/autoDI-container.xml</config>
+		<config>src/main/resources/kr/or/ddit/jdbc/conf/datasource-context.xml</config>
+		<config>src/main/resources/kr/or/ddit/jdbc/conf/orm-context.xml</config>
+		<config>src/main/resources/kr/or/ddit/example/conf/aop-context.xml</config>
+		<config>src/main/resources/kr/or/ddit/thread/springtask/conf/task-context.xml</config>
+	</configs>
+	<autoconfigs>
+	</autoconfigs>
+	<configSets>
+	</configSets>
+</beansProjectDescription>

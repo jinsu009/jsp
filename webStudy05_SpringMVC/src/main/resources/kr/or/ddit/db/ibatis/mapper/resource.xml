@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL MAP 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="Resource">
+	<resultMap class="resourceVO" id="resourceMap">
+		<result property="res_id" column="RES_ID"/>
+		<result property="res_url" column="RES_URL"/>
+		<result property="description" column="DESCRIPTION"/>
+		<result property="sort" column="SORT"/>
+		
+		<result property="roles" javaType="java.util.Set" resultMap="Member.rolesMap"/>
+	</resultMap>
+	
+	<select id="selectResourceList" resultMap="Resource.resourceMap">
+		select a.res_id, b.role_name,  res_url, description, sort
+		from resources a inner join resourcesrole b on(a.res_id = b.res_id)
+	</select>
+
+</sqlMap>
